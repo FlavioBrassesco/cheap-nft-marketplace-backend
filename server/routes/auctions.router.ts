@@ -7,6 +7,9 @@ router
   .get(auctionsController.list)
   .post(auctionsController.create);
 
-router.route("/auctions/:id").get(auctionsController.read);
+router
+  .route("/auctions/:id")
+  .get(auctionsController.read)
+  .delete(auctionsController.remove);
 
 export default router;

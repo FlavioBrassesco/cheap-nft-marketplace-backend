@@ -24,8 +24,13 @@ describe("Cheap NFT Marketplace", () => {
   describe("Auctions", () => {
     async function createAuction(data) {
       const hashedData = ethers.utils.solidityKeccak256(
-        ["address", "uint256", "uint256"],
-        [data.collectionAddress, data.tokenId, data.floorPrice]
+        ["address", "address", "uint256", "uint256"],
+        [
+          data.collectionAddress,
+          "0xab3b229eb4bcff881275e7ea2f0fd24eeac8c83a",
+          data.tokenId,
+          data.floorPrice,
+        ]
       );
 
       const ownerSig = await ownerWallet.signMessage(
@@ -43,6 +48,7 @@ describe("Cheap NFT Marketplace", () => {
         .post("/api/auctions")
         .send({
           ...data,
+          ownerAddress: ownerWallet.address,
           signature: ownerSig,
         });
       return res;
@@ -88,8 +94,13 @@ describe("Cheap NFT Marketplace", () => {
   describe("Bids", () => {
     async function createBid(data) {
       const hashedData = ethers.utils.solidityKeccak256(
-        ["address", "uint256", "uint256"],
-        [data.collectionAddress, data.tokenId, data.bid]
+        ["address", "address", "uint256", "uint256"],
+        [
+          data.collectionAddress,
+          "0xab3b229eb4bcff881275e7ea2f0fd24eeac8c83a",
+          data.tokenId,
+          data.bid,
+        ]
       );
 
       const bidderSig = await bidderWallet.signMessage(
@@ -100,7 +111,8 @@ describe("Cheap NFT Marketplace", () => {
         .post("/api/bids")
         .send({
           ...data,
-          signature: bidderSig,
+          erc20Address: "0xab3b229eb4bcff881275e7ea2f0fd24eeac8c83a",
+          bidderSignature: bidderSig,
         });
       return res;
     }
@@ -117,7 +129,7 @@ describe("Cheap NFT Marketplace", () => {
       expect(res.body).toMatchObject({
         ...data,
         bid: data.bid.toJSON(),
-        signature: expect.any(String),
+        bidderSignature: expect.any(String),
         _id: expect.any(String),
       });
     });
@@ -136,7 +148,7 @@ describe("Cheap NFT Marketplace", () => {
       expect(res.body[1]).toMatchObject({
         ...data,
         bid: data.bid.toJSON(),
-        signature: expect.any(String),
+        bidderSignature: expect.any(String),
         _id: expect.any(String),
       });
     });
@@ -151,7 +163,7 @@ describe("Cheap NFT Marketplace", () => {
 
       const hashedData = ethers.utils.solidityKeccak256(
         ["bytes"],
-        [bid.signature]
+        [bid.bidderSignature]
       );
       const ownerSig = await ownerWallet.signMessage(
         ethers.utils.arrayify(hashedData)
@@ -165,7 +177,7 @@ describe("Cheap NFT Marketplace", () => {
       });
 
       const res = await request(app).post(`/api/bids/${bid._id}`).send({
-        signature: ownerSig,
+        approvedSignature: ownerSig,
       });
 
       expect(res.statusCode).toBe(201);

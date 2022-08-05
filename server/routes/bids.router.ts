@@ -9,6 +9,7 @@ router.route("/bids")
 router
   .route("/bids/:id")
   .get(bidsController.read)
-  .post(bidsController.approveBid);
+  .post(bidsController.approveBid)
+  .delete(bidsController.remove);
 
 export default router;
