@@ -108,7 +108,7 @@ async function remove(req: Request, res: Response) {
 
   // only owner of bid can delete it if a proper signature is sent
   let recoveredAddress;
-  if (req.body.signature) {
+  if (req.body?.signature) {
     const messageHash = ethers.utils.solidityKeccak256(["string"], [id]);
     recoveredAddress = await ethers.utils.verifyMessage(
       ethers.utils.arrayify(messageHash),
